@@ -7,7 +7,7 @@ const { BadRequestError } = require('../expressError');
 // jsToSql = column name variables in an object. used for translating camelcase variables to snake case
 
 function sqlForPartialUpdate(dataToUpdate, jsToSql) {
-	// takes the key values of the object with column names
+	// takes the key values of the object with column 
 	const keys = Object.keys(dataToUpdate);
 	if (keys.length === 0) throw new BadRequestError('No data');
 	// if the object is empty, throw an error
