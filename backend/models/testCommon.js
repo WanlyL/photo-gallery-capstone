@@ -1,7 +1,7 @@
 const db = require('../db.js');
-const User = require('../models/user');
-const Post = require('../models/post');
-const { createToken } = require('../helpers/tokens');
+const User = require('./user.js');
+const Post = require('./post.js');
+const { createToken } = require('../../../helpers/tokens.js');
 
 const testPostIds = [];
 
