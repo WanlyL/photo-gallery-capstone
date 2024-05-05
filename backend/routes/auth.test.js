@@ -1,93 +1,118 @@
-const request = require('supertest');
-const express = require('express');
-const app = express();
-const router = require('./yourRouterFile'); 
+const jwt = require('jsonwebtoken');
+const { UnauthorizedError } = require('../expressError');
+const {
+	authenticateJWT,
+	ensureLoggedIn,
+	verifyUserOrAdmin,
+} = require('./auth');
 
-// Mocking dependencies and middleware
-jest.mock('jsonschema');
-jest.mock('../expressError');
-jest.mock('../models/user');
-jest.mock('../helpers/token');
+const { SECRET_KEY } = require('../config');
+const testJwt = jwt.sign({ username: 'test', isAdmin: false }, SECRET_KEY);
+const badJwt = jwt.sign({ username: 'test', isAdmin: false }, 'wrong');
 
-app.use('/auth', router);
+describe('authenticateJWT', function () {
+	test('works: via header', function () {
+		expect.assertions(2);
+		//there are multiple ways to pass an authorization token, this is how you pass it in the header.
+		//this has been provided to show you another way to pass the token. you are only expected to read this code for this project.
+		const req = { headers: { authorization: `Bearer ${testJwt}` } };
+		const res = { locals: {} };
+		const next = function (err) {
+			expect(err).toBeFalsy();
+		};
+		authenticateJWT(req, res, next);
+		expect(res.locals).toEqual({
+			user: {
+				iat: expect.any(Number),
+				username: 'test',
+				isAdmin: false,
+			},
+		});
+	});
 
-// Testing /auth/token endpoint
-describe('POST /auth/token', () => {
-  test('returns JWT token when valid credentials are provided', async () => {
-    // Mocking request body
-    const reqBody = {
-      username: 'testuser',
-      password: 'testpassword'
-    };
+	test('works: no header', function () {
+		expect.assertions(2);
+		const req = {};
+		const res = { locals: {} };
+		const next = function (err) {
+			expect(err).toBeFalsy();
+		};
+		authenticateJWT(req, res, next);
+		expect(res.locals).toEqual({});
+	});
 
-    // Mocking User.authenticate function to return a user
-    User.authenticate.mockResolvedValueOnce({ username: reqBody.username });
-
-    const response = await request(app)
-      .post('/auth/token')
-      .send(reqBody);
-
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('token');
-  });
-
-  test('returns 400 Bad Request when invalid credentials are provided', async () => {
-    // Mocking request body
-    const reqBody = {
-      username: 'testuser',
-      password: 'invalidpassword'
-    };
-
-    // Mocking User.authenticate function to throw an error
-    User.authenticate.mockRejectedValueOnce(new Error('Invalid credentials'));
-
-    const response = await request(app)
-      .post('/auth/token')
-      .send(reqBody);
-
-    expect(response.status).toBe(400);
-  });
+	test('works: invalid token', function () {
+		expect.assertions(2);
+		const req = { headers: { authorization: `Bearer ${badJwt}` } };
+		const res = { locals: {} };
+		const next = function (err) {
+			expect(err).toBeFalsy();
+		};
+		authenticateJWT(req, res, next);
+		expect(res.locals).toEqual({});
+	});
 });
 
+describe('ensureLoggedIn', function () {
+	test('works', function () {
+		expect.assertions(1);
+		const req = {};
+		const res = { locals: { user: { username: 'test', is_admin: false } } };
+		const next = function (err) {
+			expect(err).toBeFalsy();
+		};
+		ensureLoggedIn(req, res, next);
+	});
 
-describe('POST /auth/register', () => {
-  test('returns JWT token when valid user data is provided', async () => {
-    const reqBody = {
-      username: 'testuser',
-      password: 'testpassword',
-      firstName: 'Test',
-      lastName: 'User',
-      email: 'test@example.com'
-    };
+	test('unauth if no login', function () {
+		expect.assertions(1);
+		const req = {};
+		const res = { locals: {} };
+		const next = function (err) {
+			expect(err instanceof UnauthorizedError).toBeTruthy();
+		};
+		ensureLoggedIn(req, res, next);
+	});
+});
 
-    // Mocking User.register function to return a new user
-    User.register.mockResolvedValueOnce({ ...reqBody, isAdmin: false });
+describe('verifyUserOrAdmin', function () {
+	test('works: admin', function () {
+		expect.assertions(1);
+		const req = { params: { username: 'test' } };
+		const res = { locals: { user: { username: 'admin', isAdmin: true } } };
+		const next = function (err) {
+			expect(err).toBeFalsy();
+		};
+		verifyUserOrAdmin(req, res, next);
+	});
 
-    const response = await request(app)
-      .post('/auth/register')
-      .send(reqBody);
+	test('works: same user', function () {
+		expect.assertions(1);
+		const req = { params: { username: 'test' } };
+		const res = { locals: { user: { username: 'test', isAdmin: false } } };
+		const next = function (err) {
+			expect(err).toBeFalsy();
+		};
+		verifyUserOrAdmin(req, res, next);
+	});
 
-    expect(response.status).toBe(201);
-    expect(response.body).toHaveProperty('token');
-  });
+	test('unauth: mismatch', function () {
+		expect.assertions(1);
+		const req = { params: { username: 'wrong' } };
+		const res = { locals: { user: { username: 'test', isAdmin: false } } };
+		const next = function (err) {
+			expect(err instanceof UnauthorizedError).toBeTruthy();
+		};
+		verifyUserOrAdmin(req, res, next);
+	});
 
-  test('returns 400 Bad Request when invalid user data is provided', async () => {
-    // Mocking request body
-    const reqBody = {
-      username: 'testuser',
-      password: 'testpassword',
-      // Missing required field: email
-      firstName: 'Test',
-      lastName: 'User'
-    };
-
-    // Mocking User.register function to throw an error
-    User.register.mockRejectedValueOnce(new Error('Invalid user data'));
-
-    const response = await request(app)
-      .post('/auth/register')
-      .send(reqBody);
-
-    expect(response.status).toBe(400);
-  });
+	test('unauth: if anon', function () {
+		expect.assertions(1);
+		const req = { params: { username: 'test' } };
+		const res = { locals: {} };
+		const next = function (err) {
+			expect(err instanceof UnauthorizedError).toBeTruthy();
+		};
+		verifyUserOrAdmin(req, res, next);
+	});
 });
