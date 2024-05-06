@@ -9,7 +9,7 @@ const app = express();
 app.use(express.json());
 app.use(require('../routes'));
 
-describe('User Routes', () => {
+test('User Routes', () => {
   beforeEach(() => {
     ensureLoggedIn.mockImplementation((req, res, next) => next());
     verifyUserOrAdmin.mockImplementation((req, res, next) => next());
@@ -19,7 +19,7 @@ describe('User Routes', () => {
     jest.clearAllMocks();
   });
 
-  describe('GET /users', () => {
+  test('GET /users', () => {
     it('should return all users', async () => {
       User.findAll.mockResolvedValue([{ username: 'john', firstName: 'John', lastName: 'Doe' }]);
       const response = await request(app).get('/');
@@ -28,7 +28,7 @@ describe('User Routes', () => {
     });
   });
 
-  describe('GET /users/:username', () => {
+  test('GET /users/:username', () => {
     it('should return a specific user', async () => {
       User.get.mockResolvedValue({
         username: 'john', firstName: 'John', lastName: 'Doe', profileImage: 'img.jpg', bio: 'Hello', posts: [], likes: [], comments: [], followers: [], following: []
@@ -43,7 +43,7 @@ describe('User Routes', () => {
     });
   });
 
-  describe('PATCH /users/:username/edit', () => {
+  test('PATCH /users/:username/edit', () => {
     it('should update a user', async () => {
       User.update.mockResolvedValue({
         username: 'john', firstName: 'John', lastName: 'Doe', email: 'john@example.com', isAdmin: false
