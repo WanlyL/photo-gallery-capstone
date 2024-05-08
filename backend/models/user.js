@@ -11,7 +11,7 @@ const {
 
 const { BCRYPT_WORK_FACTOR } = require('../config');
 
-/** Related functions for users */
+/** Related functions for user */
 
 class User {
 	/************************************************************************************************************************************** */
