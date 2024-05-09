@@ -1,0 +1,7 @@
+.CommentForm {
+	max-width: 575px;
+	display: flex;
+	margin: auto;
+	margin-top: 25px;
+	margin-bottom: -10px;
+}
