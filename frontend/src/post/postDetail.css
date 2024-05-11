@@ -1,0 +1,88 @@
+.PostDetail {
+	border: 1px solid lightgray;
+	width: fit-content;
+	margin-bottom: 40px;
+	background-color: #ffffff;
+	max-width: 575px;
+	margin: auto;
+	border-radius: 10px;
+}
+
+.PostDetail-Header {
+	display: flex;
+	align-items: center;
+	padding: 7px 10px;
+}
+
+.PostDetail-Avatar {
+	margin-right: 10px;
+}
+
+.PostDetail-Username {
+	margin-top: 5px;
+}
+
+.PostDetail-Image {
+	width: 100%;
+	object-fit: contain;
+}
+
+.PostDetail-Caption {
+	padding: 15px;
+}
+
+.PostDetail-Likes {
+	padding: 15px;
+	display: flex;
+}
+
+.PostDetail-LikeBtn {
+	margin-right: 12px;
+	font-size: 12px;
+	height: 30px;
+	margin-top: 2px;
+	color: red;
+}
+
+.PostDetail-UnLikeBtn {
+	margin-right: 12px;
+	font-size: 12px;
+	height: 30px;
+	margin-top: 2px;
+	color: red;
+}
+
+.PostDetail-LikeCount {
+	margin-top: 4px;
+	font-size: 15px;
+}
+
+.PostDetail-Caption {
+	margin-top: -16px;
+}
+
+.comment-user {
+	margin-right: 5px;
+	padding: 10px;
+}
+
+.PostDetail-caption-username {
+	margin-right: 5px;
+}
+
+.PostDetail-Comments {
+	margin: 5px;
+}
+
+.PostDetail-Date {
+	padding: 15px;
+	color: rgb(142, 156, 170);
+	font-size: 14px;
+	margin-bottom: -1px;
+}
+
+.Comment-DeleteBtn {
+	font-size: 10px;
+	padding: 3px;
+	width: 25px;
+}
