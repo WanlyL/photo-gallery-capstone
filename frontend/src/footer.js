@@ -12,7 +12,6 @@ const Footer = () => {
 				Technologies: Node.js, Express, Postgres, React
 			</p>
 			<p className="Footer-Note">
-				No affiliation with Instagram. This is a personal project.
 			</p>
 		</div>
 	);

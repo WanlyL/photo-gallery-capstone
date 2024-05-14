@@ -12,7 +12,7 @@ const Home = () => {
 	return (
 		<div className="Home">
 			<div className="container text-center">
-				<h1 className="Home-title mb-2 fw-bold">Instagram</h1>
+				<h1 className="Home-title mb-2 fw-bold">Photo Gallery</h1>
 				<p className="Home-lead mb-4">Capturing Moments</p>
 				{currentUser ? (
 					<div>
